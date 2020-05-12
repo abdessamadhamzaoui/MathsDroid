@@ -11,6 +11,9 @@
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="adjustResize"
         >
+        <service android:name=".MainActivity"
+            android:exported="false"
+            />
         <activity android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
