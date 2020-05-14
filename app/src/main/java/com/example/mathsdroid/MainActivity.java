@@ -4,7 +4,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,8 +12,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-=======
->>>>>>> parent of 01fd908... Create notification channel
 =======
 >>>>>>> parent of 01fd908... Create notification channel
 import android.text.Editable;
@@ -37,13 +34,10 @@ public class MainActivity extends AppCompatActivity {
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
 <<<<<<< HEAD
-<<<<<<< HEAD
     Intent intent;
     private final String CHANNEL_ID = "Notifications";
     public Notification notification;
     public int nbrpremier= 2;
-=======
->>>>>>> parent of 01fd908... Create notification channel
 =======
 >>>>>>> parent of 01fd908... Create notification channel
 
@@ -230,9 +224,6 @@ public class MainActivity extends AppCompatActivity {
 =======
             if (str_now.indexOf("greatest") != -1) {
                 str4 = (str2 + "\n" + "   greatest \n" + str);
-<<<<<<< HEAD
->>>>>>> parent of 01fd908... Create notification channel
-=======
 >>>>>>> parent of 01fd908... Create notification channel
                 ET.setText(str4);
                 ET.setSelection(str4.length());
@@ -514,7 +505,6 @@ public class MainActivity extends AppCompatActivity {
         else
             return 0;
     }
-<<<<<<< HEAD
     public void updatenotif(int nbrpremier){
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -527,8 +517,6 @@ public class MainActivity extends AppCompatActivity {
         assert notificationManager != null;
         notificationManager.createNotificationChannel(notificationChannel);
     };
-=======
->>>>>>> parent of 01fd908... Create notification channel
 
 
 }
