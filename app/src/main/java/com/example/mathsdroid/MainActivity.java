@@ -2,9 +2,8 @@ package com.example.mathsdroid;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 
+<<<<<<< HEAD
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,6 +12,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+=======
+>>>>>>> parent of 01fd908... Create notification channel
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -22,7 +23,6 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
 import android.widget.Toast;
-import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -33,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
+<<<<<<< HEAD
     Intent intent;
     private final String CHANNEL_ID = "Notifications";
     public Notification notification;
     public int nbrpremier= 2;
+=======
+>>>>>>> parent of 01fd908... Create notification channel
 
 
 
@@ -45,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.FOREGROUND_SERVICE}, PackageManager.PERMISSION_GRANTED);
 
         ET=(EditText)findViewById(R.id.Edit1);
         btn=(Button)findViewById(R.id.btn);
@@ -214,10 +216,15 @@ public class MainActivity extends AppCompatActivity {
 
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
 
+<<<<<<< HEAD
             if (str_now.indexOf("greatest") != -1 ) {
                 str4 = (str2 + "\n" + "   vous receverez une notification du plus grand nombre premier calcule chaque 5 secondes \n" + str);
 
                 updatenotif();
+=======
+            if (str_now.indexOf("greatest") != -1) {
+                str4 = (str2 + "\n" + "   greatest \n" + str);
+>>>>>>> parent of 01fd908... Create notification channel
                 ET.setText(str4);
                 ET.setSelection(str4.length());
                 no_editable();
