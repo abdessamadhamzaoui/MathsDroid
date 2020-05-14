@@ -1,13 +1,18 @@
 package com.example.mathsdroid;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -29,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
     Intent intent;
+    private final String CHANNEL_ID = "Notifications";
+    public Notification notification;
+    public int nbrpremier= 2;
 
 
 
@@ -206,10 +214,10 @@ public class MainActivity extends AppCompatActivity {
 
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
 
-            if (str_now.indexOf("greatest") != -1) {
-                str4 = (str2 + "\n" + "   vous receverez une notification du plus grand nombre premier calcule chaque 2 secondes \n" + str);
-                intent = new Intent(this, ServiceNotif.class);
-                startService(intent);
+            if (str_now.indexOf("greatest") != -1 ) {
+                str4 = (str2 + "\n" + "   vous receverez une notification du plus grand nombre premier calcule chaque 5 secondes \n" + str);
+
+                updatenotif();
                 ET.setText(str4);
                 ET.setSelection(str4.length());
                 no_editable();
@@ -491,6 +499,18 @@ public class MainActivity extends AppCompatActivity {
         else
             return 0;
     }
+    public void updatenotif(int nbrpremier){
+
+        notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Plus Grand Premier")
+                .setContentText(String.valueOf(nbrpremier))
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .build();
+        NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,"nbre premiers", NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        assert notificationManager != null;
+        notificationManager.createNotificationChannel(notificationChannel);
+    };
 
 
 
