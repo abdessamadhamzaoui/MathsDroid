@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MathsDroid</string>
+    <string name="channel_name">Plus grand nombre premier calcule</string>
+    <string name="channel_description">nombre</string>
+
+
+
 </resources>

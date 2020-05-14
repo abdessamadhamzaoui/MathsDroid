@@ -1,7 +1,13 @@
 package com.example.mathsdroid;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 
+import android.Manifest;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -11,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -21,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
+    Intent intent;
 
 
 
@@ -29,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.FOREGROUND_SERVICE}, PackageManager.PERMISSION_GRANTED);
 
         ET=(EditText)findViewById(R.id.Edit1);
         btn=(Button)findViewById(R.id.btn);
@@ -198,7 +207,9 @@ public class MainActivity extends AppCompatActivity {
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
 
             if (str_now.indexOf("greatest") != -1) {
-                str4 = (str2 + "\n" + "   greatest \n" + str);
+                str4 = (str2 + "\n" + "   vous receverez une notification du plus grand nombre premier calcule chaque 2 secondes \n" + str);
+                intent = new Intent(this, ServiceNotif.class);
+                startService(intent);
                 ET.setText(str4);
                 ET.setSelection(str4.length());
                 no_editable();
@@ -358,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
 
 //--------------------------------------------------------------------------------------------------
 
+
         }
         else{
 
@@ -479,6 +491,8 @@ public class MainActivity extends AppCompatActivity {
         else
             return 0;
     }
+
+
 
 
 }
