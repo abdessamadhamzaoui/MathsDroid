@@ -384,7 +384,6 @@ public class MainActivity extends AppCompatActivity {
 
 //--------------------------------------------------------------------------------------------------
 
-
         }
         else{
 
@@ -518,8 +517,6 @@ public class MainActivity extends AppCompatActivity {
         assert notificationManager != null;
         notificationManager.createNotificationChannel(notificationChannel);
     };
-
-
 
 
 }
