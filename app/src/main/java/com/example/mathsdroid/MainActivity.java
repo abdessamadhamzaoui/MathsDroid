@@ -7,9 +7,12 @@ import android.text.Selection;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -17,12 +20,10 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btn;
+    private ImageButton btn;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
-
-
 
 
     @Override
@@ -31,9 +32,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=(Button)findViewById(R.id.btn);
+        btn=findViewById(R.id.btn);
         str4=ET.getText().toString();
-
         infinit();
 
         btn.setOnClickListener(new View.OnClickListener() {
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("interval") != -1 && redondance1(str_now)==1 && str_now.indexOf("(")<str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
