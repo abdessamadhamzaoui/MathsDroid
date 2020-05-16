@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         + "  .div(X):Les diviseurs de X\n"
                         + "  .primeBet(X,Y):X et Y\n   premier entre eux\n"
                         + "  .interval(X,Y):les nombres\n   premiers entre X et Y\n"
-                        + "  .greatest\n"
+                        + "  .greatest(X) recevoir une notification du nombre premier calculé chaque x secondes\n"
                         + "  .charge\n"
                         + "  .C(X):Combinaison de X\n"
                         + "  .A(X):Arrangement de X\n"
