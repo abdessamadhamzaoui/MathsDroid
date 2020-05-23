@@ -24,9 +24,10 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button btn;
+    private ImageButton btn;
+    private ImageButton btnplus;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
@@ -52,18 +53,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=(Button)findViewById(R.id.btn);
+        btn= findViewById(R.id.btn);
+        btn.setOnClickListener( this);
+        btnplus = findViewById(R.id.btnplus);
+        btnplus.setOnClickListener(this);
         str4=ET.getText().toString();
 
         infinit();
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn:
                 verification();
                 addData(v);
-            }
-        });
+                break;
+            case R.id.btnplus:
+                deletAllData(v);
+        }
+
     }
+
 
 
 
@@ -547,7 +557,12 @@ public class MainActivity extends AppCompatActivity {
         if(verify_format==true){
 
             if(verify_prime==true){
-               db.insertData(numprime);
+               boolean resul=db.insertData(numprime);
+               if(resul==true)
+                   Toast.makeText(MainActivity.this,"ok",Toast.LENGTH_LONG).show();
+                   else
+                   Toast.makeText(MainActivity.this,"no",Toast.LENGTH_LONG).show();
+
             }
             else if(verify_interval==true){
 
@@ -568,7 +583,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-    }
+//-------------------delete all records for downloading a precise number of data from web data------
+               public void deletAllData(View view){
+                        db.deleteAll();
+               }
+
+
+
+}
 
 
 
