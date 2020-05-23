@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
 import android.widget.ImageButton;
+
 import android.widget.Toast;
 import android.content.Context;
 
@@ -25,7 +26,7 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton btn;
+    private Button btn;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
@@ -44,12 +45,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=findViewById(R.id.btn);
+        btn=(Button)findViewById(R.id.btn);
         str4=ET.getText().toString();
 
         infinit();
