@@ -34,8 +34,11 @@ public class MainActivity extends AppCompatActivity {
     boolean verify_format=false;
     boolean verify_prime=false;
     boolean verify_interval=false;
+    boolean verify_div=false;
     long numprime;
+    long numdiv;
     ArrayList<Long> listcopy = new ArrayList<Long>();
+    ArrayList<Long> listcopydiv = new ArrayList<Long>();
 
 
 
@@ -129,12 +132,16 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("div") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                    this.verify_format=true;
+                    this.verify_div=true;
                     nb1 = Integer.parseInt(str_nb1);
+                    this.numdiv=nb1;
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = 1; i <= nb1; i++) {
 
                         if (nb1 % i == 0) {
                             list.add(i);
+                            this.listcopydiv.add(i);
                             cmpt++;
                         }
                     }
@@ -545,7 +552,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
 
             }
-            if(verify_interval==true){
+            else if(verify_interval==true){
 
                 for(int i =0;i<listcopy.size();i++){
                     long numinsert=listcopy.get(i);
@@ -561,10 +568,25 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+            else if (verify_div==true){
+                if(listcopydiv.size()==2 && listcopydiv.get(0)==1 && listcopydiv.get(1)==numdiv){
+                    long numinsert1=listcopydiv.get(1);
+                    Boolean result2 =db.insertData(numinsert1);
+                    if (result2==true){
+                        Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
+
+                    }
+                    else
+                        Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
+
+                }
+
+                }
+            }
+
         }
     }
 
 
 
 
-}
