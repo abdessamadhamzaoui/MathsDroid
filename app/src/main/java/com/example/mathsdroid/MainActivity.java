@@ -545,28 +545,15 @@ public class MainActivity extends AppCompatActivity {
 //---------------------------------------------insert data into database----------------------------
     public void addData(View view){
         if(verify_format==true){
-            boolean result =db.insertData(numprime);
+
             if(verify_prime==true){
-                if (result==true){
-                    Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
-
-                }
-                else
-                    Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
-
+               db.insertData(numprime);
             }
             else if(verify_interval==true){
 
                 for(int i =0;i<listcopy.size();i++){
                     long numinsert=listcopy.get(i);
-                    Boolean result1 =db.insertData(numinsert);
-                    if (result1==true){
-                        Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
-
-                    }
-                    else
-                        Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
-
+                    db.insertData(numinsert);
                 }
 
 
@@ -574,14 +561,7 @@ public class MainActivity extends AppCompatActivity {
             else if (verify_div==true){
                 if(listcopydiv.size()==2 && listcopydiv.get(0)==1 && listcopydiv.get(1)==numdiv){
                     long numinsert1=listcopydiv.get(1);
-                    Boolean result2 =db.insertData(numinsert1);
-                    if (result2==true){
-                        Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
-
-                    }
-                    else
-                        Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
-
+                    db.insertData(numinsert1);
                 }
 
                 }

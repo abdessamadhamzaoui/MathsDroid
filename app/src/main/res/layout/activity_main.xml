@@ -27,13 +27,15 @@
             android:inputType="textMultiLine|textNoSuggestions"
             />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go"
+        <ImageButton
             android:id="@+id/btn"
-            android:layout_gravity="bottom"
-            />
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="9dp"
+            android:background="@drawable/rounded_button"
+
+            android:src="@drawable/ic_play_arrow_black_24dp" />
 
 
 

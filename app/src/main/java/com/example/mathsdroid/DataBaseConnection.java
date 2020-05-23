@@ -2,12 +2,15 @@ package com.example.mathsdroid;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
 
 
 public class DataBaseConnection  extends SQLiteOpenHelper {
@@ -37,6 +40,23 @@ public class DataBaseConnection  extends SQLiteOpenHelper {
         if ( result== -1)
             return false;
         return true;
+    }
+    public ArrayList getprimenim(){
+        ArrayList arrayList =new ArrayList();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from primeNumber",null);
+        res.moveToFirst();
+        while (res.isAfterLast()==false){
+            String pn = res.getString(res.getColumnIndex("number"));
+            arrayList.add(pn);
+            res.moveToNext();
+        }
+        return arrayList;
+    }
+    public void deleteAll()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM primeNumber");
     }
 }
 
