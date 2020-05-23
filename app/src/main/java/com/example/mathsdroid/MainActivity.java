@@ -13,12 +13,9 @@ import android.text.Selection;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import android.content.Context;
 
@@ -27,11 +24,13 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton btn;
+    private Button btn;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
     Intent intent;
+
+
 
 
     @Override
@@ -39,8 +38,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=findViewById(R.id.btn);
+        btn=(Button)findViewById(R.id.btn);
         str4=ET.getText().toString();
+
         infinit();
 
         btn.setOnClickListener(new View.OnClickListener() {
@@ -172,14 +172,18 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("interval") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = (long) nb1; i <= nb2; i++) {
-                        for (k = 2; k <= Math.sqrt(i); k++) {
-                            if (i % k == 0)
-                                j++;
+                        if(i==1 || i==0){
+                            j++;
+                        }else {
+                            for (k = 2; k <= Math.sqrt(i); k++) {
+                                if (i % k == 0)
+                                    j++;
+                            }
                         }
                         if (j == 0) {
                             list.add(i);
@@ -202,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 no_editable();
             }
 
+
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
             if (str_now.indexOf("greatest") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
@@ -213,18 +218,18 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("argument", nb1);
                     startService(intent);
 
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
-        else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
+
 
 
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
@@ -425,15 +430,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void prime(long nb1,String str2){
         int i,j=0;
-        for(i=2;i<=Math.sqrt(nb1);i++){
-            if(nb1%i==0)
-                j++;
+        if(nb1==1 || nb1==0) {
+            j++;
+        }else {
+            for (i = 2; i <= Math.sqrt(nb1); i++) {
+                if (nb1 % i == 0)
+                    j++;
+            }
         }
-        if(j==0)
-            str4=(str2 +"\n"+"   "+ nb1 + " est un nombre premier\n"+str);
+        if (j == 0)
+            str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
         else
-            str4=(str2 +"\n"+"   "+ nb1 + " n'est pas un nombre\n   premier\n"+str);
+            str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
+
     }
+
 
 
 //--------------------------------------------------------------------------------------------------
