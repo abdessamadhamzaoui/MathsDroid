@@ -212,13 +212,19 @@ public class MainActivity extends AppCompatActivity {
                     intent = new Intent(this, ServiceNotif.class);
                     intent.putExtra("argument", nb1);
                     startService(intent);
+
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
+
 
 
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
