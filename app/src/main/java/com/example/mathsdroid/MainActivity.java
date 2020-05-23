@@ -177,9 +177,13 @@ public class MainActivity extends AppCompatActivity {
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = (long) nb1; i <= nb2; i++) {
-                        for (k = 2; k <= Math.sqrt(i); k++) {
-                            if (i % k == 0)
-                                j++;
+                        if(i==1 || i==0){
+                            j++;
+                        }else {
+                            for (k = 2; k <= Math.sqrt(i); k++) {
+                                if (i % k == 0)
+                                    j++;
+                            }
                         }
                         if (j == 0) {
                             list.add(i);
@@ -201,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 ET.setSelection(str4.length());
                 no_editable();
             }
+
 
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
             if (str_now.indexOf("greatest") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
@@ -425,15 +430,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void prime(long nb1,String str2){
         int i,j=0;
-        for(i=2;i<=Math.sqrt(nb1);i++){
-            if(nb1%i==0)
-                j++;
+        if(nb1==1 || nb1==0) {
+            j++;
+        }else {
+            for (i = 2; i <= Math.sqrt(nb1); i++) {
+                if (nb1 % i == 0)
+                    j++;
+            }
         }
-        if(j==0)
-            str4=(str2 +"\n"+"   "+ nb1 + " est un nombre premier\n"+str);
+        if (j == 0)
+            str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
         else
-            str4=(str2 +"\n"+"   "+ nb1 + " n'est pas un nombre\n   premier\n"+str);
+            str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
+
     }
+
 
 
 //--------------------------------------------------------------------------------------------------
