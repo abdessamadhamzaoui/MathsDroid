@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
+import android.widget.ImageButton;
+
 import android.widget.Toast;
 import android.content.Context;
 
@@ -29,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
     Intent intent;
+    DataBaseConnection db =new DataBaseConnection(this);
+    boolean verify_format=false;
+    boolean verify_prime=false;
+    boolean verify_interval=false;
+    long numprime;
+    ArrayList<Long> listcopy = new ArrayList<Long>();
+
+
+
 
 
 
@@ -46,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 verification();
+                addData(v);
             }
         });
     }
@@ -99,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("prime") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+
+                    this.verify_format=true;
                     nb1 = Integer.parseInt(str_nb1);
                     prime(nb1, str2);
                 } else {
@@ -176,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
+                    this.verify_format=true;
+                    this.verify_interval=true;
                     for (i = (long) nb1; i <= nb2; i++) {
                         if(i==1 || i==0){
                             j++;
@@ -187,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (j == 0) {
                             list.add(i);
+                            this.listcopy.add(i);
                             cmpt++;
                         }
                         j = 0;
@@ -234,163 +251,163 @@ public class MainActivity extends AppCompatActivity {
 
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
 
-        if (str_now.indexOf("charge") != -1) {
-            str4 = (str2 + "\n" + "   charge \n" + str);
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
+            if (str_now.indexOf("charge") != -1) {
+                str4 = (str2 + "\n" + "   charge \n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
 
 //---------------------------------------Factoriel d'un nombre--------------------------------------
 
-        if (str_now.indexOf("fact") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                if (factoriel(nb1) > 0) {
-                    str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
-                } else if (nb1 < 0) {
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+            if (str_now.indexOf("fact") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    if (factoriel(nb1) > 0) {
+                        str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    } else if (nb1 < 0) {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    }
+
                 } else {
-                    str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
 
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //------------------------------------Combinaison de 2 nombres--------------------------------------
 
-        if (str_now.indexOf("C") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
-                    str4 = (str2 + "\n" + "   C(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb2) * (factoriel(nb1 - nb2))) + "\n" + str);
+            if (str_now.indexOf("C") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
+                        str4 = (str2 + "\n" + "   C(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb2) * (factoriel(nb1 - nb2))) + "\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    }
+
                 } else {
                     str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
-
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //------------------------------------Arrangement de 2 nombre---------------------------------------
 
-        if (str_now.indexOf("A") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
-                    str4 = (str2 + "\n" + "   A(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb1 - nb2)) + "\n" + str);
+            if (str_now.indexOf("A") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
+                        str4 = (str2 + "\n" + "   A(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb1 - nb2)) + "\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    }
+
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            } else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
+
+//-------------------------------------------PPMC de 2 nombres--------------------------------------
+
+            if (str_now.indexOf("ppmc") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                long ppmc;
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0) {
+                        ppmc = (nb1 > nb2) ? nb1 : nb2;
+
+                        while (true) {
+                            if (ppmc % nb1 == 0 && ppmc % nb2 == 0) {
+                                break;
+                            }
+                            ++ppmc;
+                        }
+                        str4 = (str2 + "\n" + "   " + ppmc + "\n" + str);
+                    } else
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            } else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
+
+//---------------------------------------------PGCD de 2 nombres------------------------------------
+
+            if (str_now.indexOf("pgcd") != -1 && redondance1(str_now)==1 && str_now.indexOf("(")<str_now.indexOf(")")) {
+                long pgcd = 1;
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0) {
+                        for (i = 1; i <= nb1 && i <= nb2; ++i) {
+                            if (nb1 % i == 0 && nb2 % i == 0)
+                                pgcd = i;
+                        }
+
+                        str4 = (str2 + "\n" + "   " + pgcd + "\n" + str);
+                    } else
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 } else {
                     str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
 
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
-
-//-------------------------------------------PPMC de 2 nombres--------------------------------------
-
-        if (str_now.indexOf("ppmc") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            long ppmc;
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0) {
-                    ppmc = (nb1 > nb2) ? nb1 : nb2;
-
-                    while (true) {
-                        if (ppmc % nb1 == 0 && ppmc % nb2 == 0) {
-                            break;
-                        }
-                        ++ppmc;
-                    }
-                    str4 = (str2 + "\n" + "   " + ppmc + "\n" + str);
-                } else
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
-
-//---------------------------------------------PGCD de 2 nombres------------------------------------
-
-        if (str_now.indexOf("pgcd") != -1 && redondance1(str_now)==1 && str_now.indexOf("(")<str_now.indexOf(")")) {
-            long pgcd = 1;
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0) {
-                    for (i = 1; i <= nb1 && i <= nb2; ++i) {
-                        if (nb1 % i == 0 && nb2 % i == 0)
-                            pgcd = i;
-                    }
-
-                    str4 = (str2 + "\n" + "   " + pgcd + "\n" + str);
-                } else
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            }
-
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //--------------------------------------------------------------------------------------------------
 
-    }
+        }
         else{
-        ET.setText(str);
+            ET.setText(str);
+        }
     }
-}
 
 
     //FIN DE LA FONCTION DE VERIFICATION
@@ -438,9 +455,12 @@ public class MainActivity extends AppCompatActivity {
                     j++;
             }
         }
-        if (j == 0)
+        if (j == 0) {
+            boolean prime =true;
+            this.verify_prime=true;
+            this.numprime=nb1;
             str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
-        else
+        }else
             str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
 
     }
@@ -456,9 +476,10 @@ public class MainActivity extends AppCompatActivity {
             if(nb1%i==0 && nb2%i==0)
                 j++;
         }
-        if(j==0)
-            str4=(str2 +"\n"+"   "+ nb1 + " et " + nb2 + " sont premier\n   entre eux \n"+str);
-        else
+        if(j==0) {
+
+            str4 = (str2 + "\n" + "   " + nb1 + " et " + nb2 + " sont premier\n   entre eux \n" + str);
+        }else
             str4=(str2 +"\n"+"   "+ nb1 + " et " + nb2 + " ne sont pas\n   premier entre eux \n"+str);
     }
 
@@ -513,6 +534,37 @@ public class MainActivity extends AppCompatActivity {
             return 1;
         else
             return 0;
+    }
+//---------------------------------------------insert data into database----------------------------
+    public void addData(View view){
+        if(verify_format==true){
+            boolean result =db.insertData(numprime);
+            if(verify_prime==true){
+                if (result==true){
+                    Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
+
+                }
+                else
+                    Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
+
+            }
+            if(verify_interval==true){
+
+                for(int i =0;i<listcopy.size();i++){
+                    long numinsert=listcopy.get(i);
+                    Boolean result1 =db.insertData(numinsert);
+                    if (result1==true){
+                        Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
+
+                    }
+                    else
+                        Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
+
+                }
+
+
+            }
+        }
     }
 
 
