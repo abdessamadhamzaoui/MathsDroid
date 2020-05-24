@@ -24,9 +24,10 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button btn;
+    private ImageButton btn;
+    private ImageButton btnplus;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
@@ -35,8 +36,11 @@ public class MainActivity extends AppCompatActivity {
     boolean verify_format=false;
     boolean verify_prime=false;
     boolean verify_interval=false;
+    boolean verify_div=false;
     long numprime;
+    long numdiv;
     ArrayList<Long> listcopy = new ArrayList<Long>();
+    ArrayList<Long> listcopydiv = new ArrayList<Long>();
 
 
 
@@ -49,18 +53,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=(Button)findViewById(R.id.btn);
+        btn= findViewById(R.id.btn);
+        btn.setOnClickListener( this);
+        btnplus = findViewById(R.id.btnplus);
+        btnplus.setOnClickListener(this);
         str4=ET.getText().toString();
 
         infinit();
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn:
                 verification();
                 addData(v);
-            }
-        });
+                break;
+            case R.id.btnplus:
+                deletAllData(v);
+        }
+
     }
+
 
 
 
@@ -132,12 +145,16 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("div") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                    this.verify_format=true;
+                    this.verify_div=true;
                     nb1 = Integer.parseInt(str_nb1);
+                    this.numdiv=nb1;
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = 1; i <= nb1; i++) {
 
                         if (nb1 % i == 0) {
                             list.add(i);
+                            this.listcopydiv.add(i);
                             cmpt++;
                         }
                     }
@@ -538,36 +555,43 @@ public class MainActivity extends AppCompatActivity {
 //---------------------------------------------insert data into database----------------------------
     public void addData(View view){
         if(verify_format==true){
-            boolean result =db.insertData(numprime);
-            if(verify_prime==true){
-                if (result==true){
-                    Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
 
-                }
-                else
-                    Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
+            if(verify_prime==true){
+               boolean resul=db.insertData(numprime);
+               if(resul==true)
+                   Toast.makeText(MainActivity.this,"ok",Toast.LENGTH_LONG).show();
+                   else
+                   Toast.makeText(MainActivity.this,"no",Toast.LENGTH_LONG).show();
 
             }
-            if(verify_interval==true){
+            else if(verify_interval==true){
 
                 for(int i =0;i<listcopy.size();i++){
                     long numinsert=listcopy.get(i);
-                    Boolean result1 =db.insertData(numinsert);
-                    if (result1==true){
-                        Toast.makeText(MainActivity.this ,"ok",Toast.LENGTH_SHORT).show();
-
-                    }
-                    else
-                        Toast.makeText(MainActivity.this ,"NO",Toast.LENGTH_SHORT).show();
-
+                    db.insertData(numinsert);
                 }
 
 
             }
-        }
-    }
+            else if (verify_div==true){
+                if(listcopydiv.size()==2 && listcopydiv.get(0)==1 && listcopydiv.get(1)==numdiv){
+                    long numinsert1=listcopydiv.get(1);
+                    db.insertData(numinsert1);
+                }
 
+                }
+            }
+
+        }
+//-------------------delete all records for downloading a precise number of data from web data------
+               public void deletAllData(View view){
+                        db.deleteAll();
+               }
 
 
 
 }
+
+
+
+
