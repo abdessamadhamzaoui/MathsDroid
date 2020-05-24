@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         + "  .div(X):Les diviseurs de X\n"
                         + "  .primeBet(X,Y):X et Y\n   premier entre eux\n"
                         + "  .interval(X,Y):les nombres\n   premiers entre X et Y\n"
-                        + "  .greatest\n"
+                        + "  .greatest(X) recevoir une notification du nombre premier calculé chaque x secondes\n"
                         + "  .charge\n"
                         + "  .C(X):Combinaison de X\n"
                         + "  .A(X):Arrangement de X\n"
@@ -177,9 +177,13 @@ public class MainActivity extends AppCompatActivity {
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = (long) nb1; i <= nb2; i++) {
-                        for (k = 2; k <= Math.sqrt(i); k++) {
-                            if (i % k == 0)
-                                j++;
+                        if(i==1 || i==0){
+                            j++;
+                        }else {
+                            for (k = 2; k <= Math.sqrt(i); k++) {
+                                if (i % k == 0)
+                                    j++;
+                            }
                         }
                         if (j == 0) {
                             list.add(i);
@@ -202,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 no_editable();
             }
 
+
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
             if (str_now.indexOf("greatest") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
@@ -212,13 +217,19 @@ public class MainActivity extends AppCompatActivity {
                     intent = new Intent(this, ServiceNotif.class);
                     intent.putExtra("argument", nb1);
                     startService(intent);
+
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
+
 
 
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
@@ -419,15 +430,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void prime(long nb1,String str2){
         int i,j=0;
-        for(i=2;i<=Math.sqrt(nb1);i++){
-            if(nb1%i==0)
-                j++;
+        if(nb1==1 || nb1==0) {
+            j++;
+        }else {
+            for (i = 2; i <= Math.sqrt(nb1); i++) {
+                if (nb1 % i == 0)
+                    j++;
+            }
         }
-        if(j==0)
-            str4=(str2 +"\n"+"   "+ nb1 + " est un nombre premier\n"+str);
+        if (j == 0)
+            str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
         else
-            str4=(str2 +"\n"+"   "+ nb1 + " n'est pas un nombre\n   premier\n"+str);
+            str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
+
     }
+
 
 
 //--------------------------------------------------------------------------------------------------
