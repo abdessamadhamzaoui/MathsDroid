@@ -1,5 +1,6 @@
 package com.example.mathsdroid;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -11,44 +12,174 @@ import android.content.pm.PackageManager;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
+
 import android.widget.Toast;
 import android.content.Context;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Queue;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity /*implements View.OnClickListener */{
 
     private ImageButton btn;
+    private ImageButton btnplus;
     private EditText ET;
     String str, str_initial, str4;
     Scanner scan = new Scanner(System.in);
     Intent intent;
+    DataBaseConnection db =new DataBaseConnection(this);
+    boolean verify_format=false;
+    boolean verify_prime=false;
+    boolean verify_interval=false;
+    boolean verify_div=false;
+    long numprime;
+    long numdiv;
+    ArrayList<Long> listcopy = new ArrayList<Long>();
+    ArrayList<Long> listcopydiv = new ArrayList<Long>();
+    static int a=0;
+    //static long value;
+    ValueEventListener valueEventListener;
+    int count=0;
+    int id =0;
+    private Query query;
+
+
+
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
-        btn=findViewById(R.id.btn);
+        btn= findViewById(R.id.btn);
+        //btn.setOnClickListener( this);
+        btnplus = findViewById(R.id.btnplus);
+        //btnplus.setOnClickListener(this);
         str4=ET.getText().toString();
-        infinit();
+
+
+
+
+
+        //sendmsg(NbToDB);
+         /*DBRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    count= (int) dataSnapshot.getChildrenCount();
+                }
+                else{
+                    count=0;
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                //Log.w("dd", "Failed to read value.", error.toException());
+            }
+        });*/
+
+        /*Query query= FirebaseDatabase.getInstance().getReference("PrimaryNumbers")
+                .orderByValue();
+        query.addListenerForSingleValueEvent(valueEventListener);*/
 
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 verification();
+                addData(v);
             }
         });
+        btnplus.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deletAllData(v);
+            }
+        });
+
+        infinit();
+
+
+
     }
+
+    public void sendmsg(long nb) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("PrimaryNumbers");
+       // DatabaseReference myRef1 = database.getReference("LastUsedID");
+     //   myRef1.child("LastID").setValue(id);
+        myRef.child(String.valueOf(id)).setValue(nb);
+        //id=lastID();
+        id++;
+
+        //myRef.push().setValue(nb);
+
+       // myRef.child(String.valueOf(id)).setValue(nb);
+
+    //    myRef1.child("LastID").setValue(id);
+
+    }
+
+    public int lastID(){
+        int id;
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final String[] value = new String[1];
+        DatabaseReference myRef = database.getReference("PrimaryNumbers");
+        myRef.child("products").orderByChild("LastID").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //Map of all products which has city equal to mCurrentUserCity
+                        value[0] = dataSnapshot.getValue(String.class);
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+        id= Integer.parseInt(value[0]);
+        return id;
+    }
+
+
+
+
+    /*@Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn:
+                verification(myRef);
+                addData(v);
+                break;
+            case R.id.btnplus:
+                deletAllData(v);
+        }
+
+    }*/
+
 
 
 
@@ -83,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         + "  .div(X):Les diviseurs de X\n"
                         + "  .primeBet(X,Y):X et Y\n   premier entre eux\n"
                         + "  .interval(X,Y):les nombres\n   premiers entre X et Y\n"
-                        + "  .greatest(X) recevoir une notification du nombre premier calculé chaque x secondes\n"
+                        + "  .greatest(X) recevoir une\n   notification du nombre premier\n   calculé chaque x secondes\n"
                         + "  .charge\n"
                         + "  .C(X):Combinaison de X\n"
                         + "  .A(X):Arrangement de X\n"
@@ -99,6 +230,8 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("prime") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+
+                    this.verify_format=true;
                     nb1 = Integer.parseInt(str_nb1);
                     prime(nb1, str2);
                 } else {
@@ -118,12 +251,16 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("div") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                    this.verify_format=true;
+                    this.verify_div=true;
                     nb1 = Integer.parseInt(str_nb1);
+                    this.numdiv=nb1;
                     ArrayList<Long> list = new ArrayList<Long>();
                     for (i = 1; i <= nb1; i++) {
 
                         if (nb1 % i == 0) {
                             list.add(i);
+                            this.listcopydiv.add(i);
                             cmpt++;
                         }
                     }
@@ -172,10 +309,12 @@ public class MainActivity extends AppCompatActivity {
             if (str_now.indexOf("interval") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
+                    this.verify_format=true;
+                    this.verify_interval=true;
                     for (i = (long) nb1; i <= nb2; i++) {
                         if(i==1 || i==0){
                             j++;
@@ -186,7 +325,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         if (j == 0) {
+                            sendmsg(i);
                             list.add(i);
+                            this.listcopy.add(i);
                             cmpt++;
                         }
                         j = 0;
@@ -207,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-//--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
+//--------------le plus grand nombre premier calculé par l'application------------
             if (str_now.indexOf("greatest") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
@@ -234,163 +375,179 @@ public class MainActivity extends AppCompatActivity {
 
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
 
-        if (str_now.indexOf("charge") != -1) {
-            str4 = (str2 + "\n" + "   charge \n" + str);
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
+            if (str_now.indexOf("charge") != -1) {
+                /*final String[] post = new String[1];
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference ref = database.getReference("PrimaryNumbers");
+                ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        post[0] = dataSnapshot.getValue(Long.class).toString();
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        post[0] ="The read failed";
+                    }
+                });*/
+
+                //str4 = (str2 + "\n" + "   "+post[0]+" \n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
 
 //---------------------------------------Factoriel d'un nombre--------------------------------------
 
-        if (str_now.indexOf("fact") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                if (factoriel(nb1) > 0) {
-                    str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
-                } else if (nb1 < 0) {
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+            if (str_now.indexOf("fact") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    if (factoriel(nb1) > 0) {
+                        str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    } else if (nb1 < 0) {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    }
+
                 } else {
-                    str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
 
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //------------------------------------Combinaison de 2 nombres--------------------------------------
 
-        if (str_now.indexOf("C") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
-                    str4 = (str2 + "\n" + "   C(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb2) * (factoriel(nb1 - nb2))) + "\n" + str);
+            if (str_now.indexOf("C") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
+                        str4 = (str2 + "\n" + "   C(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb2) * (factoriel(nb1 - nb2))) + "\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    }
+
                 } else {
                     str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
-
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //------------------------------------Arrangement de 2 nombre---------------------------------------
 
-        if (str_now.indexOf("A") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
-                    str4 = (str2 + "\n" + "   A(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb1 - nb2)) + "\n" + str);
+            if (str_now.indexOf("A") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
+                        str4 = (str2 + "\n" + "   A(" + nb1 + "," + nb2 + ") = " + factoriel(nb1) / (factoriel(nb1 - nb2)) + "\n" + str);
+                    } else {
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                    }
+
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            } else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
+
+//-------------------------------------------PPMC de 2 nombres--------------------------------------
+
+            if (str_now.indexOf("ppmc") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
+                long ppmc;
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0) {
+                        ppmc = (nb1 > nb2) ? nb1 : nb2;
+
+                        while (true) {
+                            if (ppmc % nb1 == 0 && ppmc % nb2 == 0) {
+                                break;
+                            }
+                            ++ppmc;
+                        }
+                        str4 = (str2 + "\n" + "   " + ppmc + "\n" + str);
+                    } else
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                } else {
+                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                }
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            } else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }
+
+//---------------------------------------------PGCD de 2 nombres------------------------------------
+
+            if (str_now.indexOf("pgcd") != -1 && redondance1(str_now)==1 && str_now.indexOf("(")<str_now.indexOf(")")) {
+                long pgcd = 1;
+                str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
+                str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
+                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                    nb1 = Integer.parseInt(str_nb1);
+                    nb2 = Integer.parseInt(str_nb2);
+                    if (nb1 >= 0 && nb2 >= 0) {
+                        for (i = 1; i <= nb1 && i <= nb2; ++i) {
+                            if (nb1 % i == 0 && nb2 % i == 0)
+                                pgcd = i;
+                        }
+
+                        str4 = (str2 + "\n" + "   " + pgcd + "\n" + str);
+                    } else
+                        str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 } else {
                     str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
                 }
 
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
+            }else {
+                ET.setText(str4);
+                ET.setSelection(str4.length());
+                no_editable();
             }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
-
-//-------------------------------------------PPMC de 2 nombres--------------------------------------
-
-        if (str_now.indexOf("ppmc") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
-            long ppmc;
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0) {
-                    ppmc = (nb1 > nb2) ? nb1 : nb2;
-
-                    while (true) {
-                        if (ppmc % nb1 == 0 && ppmc % nb2 == 0) {
-                            break;
-                        }
-                        ++ppmc;
-                    }
-                    str4 = (str2 + "\n" + "   " + ppmc + "\n" + str);
-                } else
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            }
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        } else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
-
-//---------------------------------------------PGCD de 2 nombres------------------------------------
-
-        if (str_now.indexOf("pgcd") != -1 && redondance1(str_now)==1 && str_now.indexOf("(")<str_now.indexOf(")")) {
-            long pgcd = 1;
-            str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
-            str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-            if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
-                nb1 = Integer.parseInt(str_nb1);
-                nb2 = Integer.parseInt(str_nb2);
-                if (nb1 >= 0 && nb2 >= 0) {
-                    for (i = 1; i <= nb1 && i <= nb2; ++i) {
-                        if (nb1 % i == 0 && nb2 % i == 0)
-                            pgcd = i;
-                    }
-
-                    str4 = (str2 + "\n" + "   " + pgcd + "\n" + str);
-                } else
-                    str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            } else {
-                str4 = (str2 + "\n" + "   Format incorrect!\n" + str);
-            }
-
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }else {
-            ET.setText(str4);
-            ET.setSelection(str4.length());
-            no_editable();
-        }
 
 //--------------------------------------------------------------------------------------------------
 
-    }
+        }
         else{
-        ET.setText(str);
+            ET.setText(str);
+        }
     }
-}
 
 
     //FIN DE LA FONCTION DE VERIFICATION
@@ -429,6 +586,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void prime(long nb1,String str2){
+
+
+
         int i,j=0;
         if(nb1==1 || nb1==0) {
             j++;
@@ -438,9 +598,14 @@ public class MainActivity extends AppCompatActivity {
                     j++;
             }
         }
-        if (j == 0)
+        if (j == 0) {
+            //NbToDB=nb1;
+            sendmsg(nb1);
+            boolean prime =true;
+            this.verify_prime=true;
+            this.numprime=nb1;
             str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
-        else
+        }else
             str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
 
     }
@@ -456,9 +621,10 @@ public class MainActivity extends AppCompatActivity {
             if(nb1%i==0 && nb2%i==0)
                 j++;
         }
-        if(j==0)
-            str4=(str2 +"\n"+"   "+ nb1 + " et " + nb2 + " sont premier\n   entre eux \n"+str);
-        else
+        if(j==0) {
+
+            str4 = (str2 + "\n" + "   " + nb1 + " et " + nb2 + " sont premier\n   entre eux \n" + str);
+        }else
             str4=(str2 +"\n"+"   "+ nb1 + " et " + nb2 + " ne sont pas\n   premier entre eux \n"+str);
     }
 
@@ -514,8 +680,46 @@ public class MainActivity extends AppCompatActivity {
         else
             return 0;
     }
+//---------------------------------------------insert data into database----------------------------
+    public void addData(View view){
+        if(verify_format==true){
 
+            if(verify_prime==true){
+               boolean resul=db.insertData(numprime);
+               if(resul==true)
+                   Toast.makeText(MainActivity.this,"ok",Toast.LENGTH_LONG).show();
+                   else
+                   Toast.makeText(MainActivity.this,"no",Toast.LENGTH_LONG).show();
+
+            }
+            else if(verify_interval==true){
+
+                for(int i =0;i<listcopy.size();i++){
+                    long numinsert=listcopy.get(i);
+                    db.insertData(numinsert);
+                }
+
+
+            }
+            else if (verify_div==true){
+                if(listcopydiv.size()==2 && listcopydiv.get(0)==1 && listcopydiv.get(1)==numdiv){
+                    long numinsert1=listcopydiv.get(1);
+                    db.insertData(numinsert1);
+                }
+
+                }
+            }
+
+        }
+//-------------------delete all records for downloading a precise number of data from web data------
+               public void deletAllData(View view){
+                        db.deleteAll();
+               }
 
 
 
 }
+
+
+
+
