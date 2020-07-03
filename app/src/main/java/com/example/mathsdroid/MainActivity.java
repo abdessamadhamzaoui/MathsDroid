@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
         });
         DatabaseReference reference = database.getReference("PrimaryNumbers");
         reference.keepSynced(true);
+        getRecord();
         infinit();
 
     }
@@ -348,7 +349,7 @@ public class MainActivity extends AppCompatActivity /*implements View.OnClickLis
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
                 if (TextUtils.isDigitsOnly(str_nb1) == true) {
                     nb1 = Integer.parseInt(str_nb1);
-                    str4 = (str2 + "\n" + " Vous receverez une notification chaque " + nb1 + " secondes \n" + str);
+                    str4 = (str2 + "\n" + "   Vous receverez une notification\n   chaque " + nb1 + " secondes \n" + str);
 
                     intent = new Intent(this, ServiceNotif.class);
                     intent.putExtra("argument", nb1);
