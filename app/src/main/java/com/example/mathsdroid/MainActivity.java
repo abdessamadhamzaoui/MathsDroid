@@ -1,5 +1,6 @@
 package com.example.mathsdroid;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -10,9 +11,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.text.Editable;
 import android.text.Selection;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.Button;
 import android.os.Bundle;
@@ -21,10 +25,27 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.content.Context;
 
-import java.util.ArrayList;
-import java.util.Scanner;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.Set;
+
+public class MainActivity extends AppCompatActivity /*implements View.OnClickListener */{
 
     private ImageButton btn;
     private ImageButton btnplus;
@@ -41,40 +62,120 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     long numdiv;
     ArrayList<Long> listcopy = new ArrayList<Long>();
     ArrayList<Long> listcopydiv = new ArrayList<Long>();
+    static int a=0;
+    ValueEventListener valueEventListener;
+    int count=0;
+    int id =0;
+    private Query query;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference myRef;
+    private String userId;
+    private Integer numb;
+    String maxScoreLevel;
+    String maxScoreName;
+    final ArrayList<Long> list=new ArrayList<>();
+    private String strrr=" ";
+    private ArrayList<HashMap<String, Object>> hashList;
+    final ArrayList<Long> list1=new ArrayList<>();
 
-
-
-
+    private DatabaseReference ref = database.getInstance().getReference("PrimaryNumbers");
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ET=(EditText)findViewById(R.id.Edit1);
         btn= findViewById(R.id.btn);
-        btn.setOnClickListener( this);
+        //btn.setOnClickListener( this);
         btnplus = findViewById(R.id.btnplus);
-        btnplus.setOnClickListener(this);
+        //btnplus.setOnClickListener(this);
         str4=ET.getText().toString();
+        list.add(0, (long) 75);
+        list.add(1, (long) 751);
+        list.add(2, (long) 71);
 
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                verification();
+                addData(v);
+            }
+        });
+        btnplus.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deletAllData(v);
+            }
+        });
+        DatabaseReference reference = database.getReference("PrimaryNumbers");
+        reference.keepSynced(true);
         infinit();
+
     }
-    @Override
+
+    // add primary numbers to firebase DB
+    public void sendmsg(long nb) {
+        DatabaseReference myRef = database.getReference();
+        String userId = myRef.push().getKey();
+        HashMap hash = new HashMap();
+        hash.put("Value",nb);
+        myRef.child("PrimaryNumbers").child("Number"+userId).setValue(hash);
+        id++;
+    }
+
+
+
+
+
+                private void getRecord() {
+
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                            int cmp=0;
+                            GenericTypeIndicator<Map<String, Long>> to = new GenericTypeIndicator<Map<String, Long>>() {};
+
+                            for(DataSnapshot Snapshot : dataSnapshot.getChildren()){
+
+                                Map<String, Long> PN= (Map<String, Long>) Snapshot.getValue(to);
+                                long ya=PN.get("Value");
+                                if(!list1.contains(ya)) {
+                                    list1.add(ya);
+                                    //dup=ya;
+                                    cmp++;
+                                }
+                            }
+                            Collections.sort(list1);
+                            int ten=0;
+
+                                for (int i = cmp - 1; i > cmp-11; i--)
+                                        strrr = (strrr + "\n   " + list1.get(i));
+
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e("efd", "onCancelled", databaseError.toException());
+                        }
+                    });
+
+                }
+
+
+
+    /*@Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn:
-                verification();
+                verification(myRef);
                 addData(v);
                 break;
             case R.id.btnplus:
                 deletAllData(v);
         }
 
-    }
-
-
+    }*/
 
 
 
@@ -108,10 +209,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         + "  .div(X):Les diviseurs de X\n"
                         + "  .primeBet(X,Y):X et Y\n   premier entre eux\n"
                         + "  .interval(X,Y):les nombres\n   premiers entre X et Y\n"
-                        + "  .greatest(X) recevoir une notification du nombre premier calculé chaque x secondes\n"
+                        + "  .greatest(X) recevoir une\n   notification du nombre premier\n   calculé chaque x secondes\n"
                         + "  .charge\n"
-                        + "  .C(X):Combinaison de X\n"
-                        + "  .A(X):Arrangement de X\n"
+                        + "  .C(X,Y):Combinaison Y de X\n"
+                        + "  .A(X,Y):Arrangement Y de X\n"
                         + "  .ppmc(X,Y):ppmc de X et Y\n"
                         + "  .pgcd(C,Y):pgcd de X et Y\n" + str);
                 ET.setText(str4);
@@ -123,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (str_now.indexOf("prime") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true) {
 
                     this.verify_format=true;
                     nb1 = Integer.parseInt(str_nb1);
@@ -144,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (str_now.indexOf("div") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true) {
                     this.verify_format=true;
                     this.verify_div=true;
                     nb1 = Integer.parseInt(str_nb1);
@@ -182,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (str_now.indexOf("primBet") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     primeBet(nb1, nb2, str2);
@@ -203,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (str_now.indexOf("interval") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     ArrayList<Long> list = new ArrayList<Long>();
@@ -219,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                         if (j == 0) {
+                            sendmsg(i);
                             list.add(i);
                             this.listcopy.add(i);
                             cmpt++;
@@ -244,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //--------------le plus grand nombre premier calculé par l'application(Base de données)-------------
             if (str_now.indexOf("greatest") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     str4 = (str2 + "\n" + " Vous receverez une notification chaque " + nb1 + " secondes \n" + str);
 
@@ -269,17 +371,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //---------------------charger les 10 grand derniers nombres premiers calculés----------------------
 
             if (str_now.indexOf("charge") != -1) {
-                str4 = (str2 + "\n" + "   charge \n" + str);
+
+
+                getRecord();
+                str4=(str2 + "\n" + "   "+strrr+"\n" + str);
                 ET.setText(str4);
                 ET.setSelection(str4.length());
+                list1.clear();
+                strrr=" ";
                 no_editable();
+
             }
 
 //---------------------------------------Factoriel d'un nombre--------------------------------------
 
             if (str_now.indexOf("fact") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     if (factoriel(nb1) > 0) {
                         str4 = (str2 + "\n" + "   " + nb1 + "! = " + factoriel(nb1) + "\n" + str);
@@ -307,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (str_now.indexOf("C") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
@@ -333,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (str_now.indexOf("A") != -1 && redondance1(str_now) == 1 && str_now.indexOf("(") < str_now.indexOf(")")) {
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     if (nb1 >= 0 && nb2 >= 0 && factoriel(nb1 - nb2) >= 1) {
@@ -360,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 long ppmc;
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     if (nb1 >= 0 && nb2 >= 0) {
@@ -393,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 long pgcd = 1;
                 str_nb1 = str_now.substring(str_now.indexOf("(") + 1, str_now.indexOf(","));
                 str_nb2 = str_now.substring(str_now.indexOf(",") + 1, str_now.indexOf(")"));
-                if (android.text.TextUtils.isDigitsOnly(str_nb1) == true && android.text.TextUtils.isDigitsOnly(str_nb2) == true) {
+                if (TextUtils.isDigitsOnly(str_nb1) == true && TextUtils.isDigitsOnly(str_nb2) == true) {
                     nb1 = Integer.parseInt(str_nb1);
                     nb2 = Integer.parseInt(str_nb2);
                     if (nb1 >= 0 && nb2 >= 0) {
@@ -473,13 +581,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         if (j == 0) {
+            //NbToDB=nb1;
+            sendmsg(nb1);
             boolean prime =true;
             this.verify_prime=true;
             this.numprime=nb1;
             str4 = (str2 + "\n" + "   " + nb1 + " est un nombre premier\n" + str);
         }else
             str4 = (str2 + "\n" + "   " + nb1 + " n'est pas un nombre\n   premier\n" + str);
-
     }
 
 
@@ -589,6 +698,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                }
 
 
+
+    public ArrayList<HashMap<String, Object>> recArrayList(DataSnapshot snapshot){
+        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+        if (snapshot == null){
+            return list;
+        }
+        // This is awesome! You don't have to know the data structure of the database.
+        Object fieldsObj = new Object();
+        HashMap fldObj;
+        for (DataSnapshot shot : snapshot.getChildren()){
+            try{
+                fldObj = (HashMap)shot.getValue(fieldsObj.getClass());
+            }catch (Exception ex){
+
+                // My custom error handler. See 'ErrorHandler' in Gist
+//                ErrorHandler.logError(ex);
+                continue;
+            }
+            // Include the primary key of this Firebase data record. Named it 'recKeyID'
+            fldObj.put("recKeyID", shot.getKey());
+            list.add(fldObj);
+        }
+
+        return list;
+    }
 
 }
 
